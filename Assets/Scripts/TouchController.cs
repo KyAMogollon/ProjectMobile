@@ -7,6 +7,9 @@ public class TouchController : MonoBehaviour
     [SerializeField] private Camera camera;
     private int index=0;
     RaycastHit hit;
+    private float lastTapTime;
+    private float doubleTapTime = 0.3f;
+    bool doubleTapDetected=false;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,25 +19,33 @@ public class TouchController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.touchCount > 0) 
+        if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
 
-            if (touch.phase == TouchPhase.Began) 
+            if (touch.phase == TouchPhase.Began)
             {
-                Vector2 pos = camera.ScreenToWorldPoint(touch.position);
-                Instantiate(objeto[index], pos, Quaternion.identity);
-                if(Physics.Raycast(new Vector3(pos.x, pos.y, -5), Vector3.forward, out hit, 1000f))
+                if (Time.time - lastTapTime < doubleTapTime && !doubleTapDetected)
                 {
-                    if (hit.collider != null)
-                    {
-                        Debug.Log(hit.collider.gameObject.name);
-                    }
-                };
-                
+                    Debug.Log("Doble toque");
+                    doubleTapDetected = true;
+                }
+                else if (doubleTapDetected)
+                {
+                    Debug.Log("Objeto creado después de un double tap");
+                    Vector2 pos = Camera.main.ScreenToWorldPoint(touch.position);
+                    Instantiate(objeto[index], pos, Quaternion.identity);
+                    doubleTapDetected = false; // Restablecer doubleTapDetected
+                }
+                else
+                {
+                    Debug.Log("Objeto creado después de un toque sencillo");
+                    Vector2 pos = Camera.main.ScreenToWorldPoint(touch.position);
+                    Instantiate(objeto[index], pos, Quaternion.identity);
+                }
+                lastTapTime = Time.time;
             }
         }
-
     }
     public void CircleFigure()
     {
