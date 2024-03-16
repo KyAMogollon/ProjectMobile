@@ -1,19 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 public class TouchController : MonoBehaviour
 {
     [SerializeField] GameObject[] objeto;
-    [SerializeField] private Camera camera;
+    private Camera camera;
     private int index=0;
-    RaycastHit hit;
     private float lastTapTime;
     private float doubleTapTime = 0.3f;
     bool doubleTapDetected=false;
     // Start is called before the first frame update
     void Start()
     {
-        
+        camera=FindObjectOfType<Camera>();
     }
 
     // Update is called once per frame
@@ -25,26 +25,50 @@ public class TouchController : MonoBehaviour
 
             if (touch.phase == TouchPhase.Began)
             {
-                if (Time.time - lastTapTime < doubleTapTime && !doubleTapDetected)
+                if (Time.time - lastTapTime < doubleTapTime)
                 {
-                    Debug.Log("Doble toque");
+                    Debug.Log("DobleToque");
                     doubleTapDetected = true;
                 }
-                else if (doubleTapDetected)
-                {
-                    Debug.Log("Objeto creado después de un double tap");
-                    Vector2 pos = Camera.main.ScreenToWorldPoint(touch.position);
-                    Instantiate(objeto[index], pos, Quaternion.identity);
-                    doubleTapDetected = false; // Restablecer doubleTapDetected
-                }
+
                 else
                 {
-                    Debug.Log("Objeto creado después de un toque sencillo");
                     Vector2 pos = Camera.main.ScreenToWorldPoint(touch.position);
-                    Instantiate(objeto[index], pos, Quaternion.identity);
+                    if (!doubleTapDetected)
+                    {
+                        RaycastDetected(pos);
+
+                    }
                 }
                 lastTapTime = Time.time;
+                StartCoroutine(ResetDoubleTap());
             }
+            Vector2 pos2=Camera.main.ScreenToWorldPoint(touch.position);
+            if(touch.phase == TouchPhase.Moved)
+            {
+                MoveFigure(pos2);
+            }
+        }
+    }
+    IEnumerator ResetDoubleTap()
+    {
+        yield return new WaitForSeconds(0.5f); 
+        doubleTapDetected = false;
+    }
+    void MoveFigure(Vector2 pos2)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(pos2, Vector2.zero);
+        if (hit.collider != null)
+        {
+            hit.collider.gameObject.transform.position = new Vector2(pos2.x, pos2.y);
+        }
+    }
+    void RaycastDetected(Vector2 pos)
+    {
+        RaycastHit2D hit = Physics2D.Raycast(pos, Vector2.zero);
+        if (hit.collider ==null)
+        {
+            Instantiate(objeto[index], pos, Quaternion.identity);
         }
     }
     public void CircleFigure()
