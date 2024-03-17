@@ -6,22 +6,21 @@ public class TouchController : MonoBehaviour
 {
     [SerializeField] GameObject[] objeto;
     [SerializeField] GameObject almacenObjetos;
+    [SerializeField] GameObject trailBehaviour;
     private Camera camera;
     private int index=0;
 
 
 
-    public float swipeThreshold = 100f; // Umbral del swipe
+    public float swipeThreshold = 3f; // Umbral del swipe
 
     private Vector2 startTouchPosition;
     private Vector2 endTouchPosition;
-    private TrailRenderer trailRenderer; // Trail Renderer activo
 
     // Start is called before the first frame update
     void Start()
     {
         camera=FindObjectOfType<Camera>();
-        trailRenderer=GetComponent<TrailRenderer>();
     }
 
     // Update is called once per frame
@@ -37,8 +36,8 @@ public class TouchController : MonoBehaviour
             Vector2 pos2=Camera.main.ScreenToWorldPoint(touch.position);
             //Para mover la figura
             if(touch.phase == TouchPhase.Moved)
-            {
-                MoveFigure(pos2);
+            { 
+                //MoveFigure(pos2);
             }
         }
         DetectSwipe();
@@ -48,25 +47,34 @@ public class TouchController : MonoBehaviour
         if (Input.touchCount > 0)
         {
             Touch touch = Input.GetTouch(0);
-
+            Vector2 mousePos = Camera.main.ScreenToWorldPoint(touch.position);
             if (touch.phase == TouchPhase.Began)
             {
-                startTouchPosition = touch.position;
+                startTouchPosition = mousePos;
             }
 
             if (touch.phase == TouchPhase.Ended)
             {
-                endTouchPosition = touch.position;
+                endTouchPosition = mousePos;
 
-                float swipeMagnitude = Vector2.Distance(startTouchPosition, endTouchPosition);
-
-                if (swipeMagnitude > swipeThreshold)
-                {
-                    Vector2 pos = Camera.main.ScreenToWorldPoint(touch.position);
-                    RaycastDestroy(pos);
-                }
+                
             }
 
+            RaycastHit2D hit = Physics2D.Raycast(mousePos, Vector2.zero);
+            if(hit.collider == null)
+            {
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    float swipeMagnitude = Vector2.Distance(startTouchPosition, endTouchPosition);
+                    Debug.Log(swipeMagnitude);
+                    if (swipeMagnitude > swipeThreshold)
+                    {
+                        Debug.Log("entro a la condicion");
+                        trailBehaviour.transform.position = mousePos;
+                        RaycastDestroy(mousePos);
+                    }
+                }
+            }
         }
     }
     void RaycastDestroy(Vector2 pos2)
