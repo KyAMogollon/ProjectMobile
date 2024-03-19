@@ -37,7 +37,7 @@ public class TouchController : MonoBehaviour
             //Para mover la figura
             if(touch.phase == TouchPhase.Moved)
             { 
-                //MoveFigure(pos2);
+                MoveFigure(pos2);
             }
         }
         DetectSwipe();
@@ -50,12 +50,12 @@ public class TouchController : MonoBehaviour
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(touch.position);
             if (touch.phase == TouchPhase.Began)
             {
-                startTouchPosition = mousePos;
+                startTouchPosition = touch.position;
             }
 
             if (touch.phase == TouchPhase.Ended)
             {
-                endTouchPosition = mousePos;
+                endTouchPosition = touch.position;
 
                 
             }
@@ -65,8 +65,12 @@ public class TouchController : MonoBehaviour
             {
                 if (touch.phase == TouchPhase.Moved)
                 {
-                    float swipeMagnitude = Vector2.Distance(startTouchPosition, endTouchPosition);
+                    float swipeMagnitude = endTouchPosition.x - startTouchPosition.x;
+                    Mathf.Abs(swipeMagnitude);
                     Debug.Log(swipeMagnitude);
+                    Debug.Log("StartPosition:" + startTouchPosition);
+                    Debug.Log("EndPosition:" + endTouchPosition);
+
                     if (swipeMagnitude > swipeThreshold)
                     {
                         Debug.Log("entro a la condicion");
