@@ -73,7 +73,7 @@ public class TouchController : MonoBehaviour
 
                     if (swipeMagnitude > swipeThreshold)
                     {
-                        Debug.Log("entro a la condicion");
+                        //Debug.Log("entro a la condicion");
                         trailBehaviour.transform.position = mousePos;
                         RaycastDestroy(mousePos);
                     }
